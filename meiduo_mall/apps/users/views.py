@@ -37,5 +37,7 @@ class RegisterView(View):
         # 还有包含数据验证的基本操作省略
         # 4、数据入库
         user = User.objects.create_user(username=username, password = password, mobile=mobile)
+        from django.contrib.auth import login
+        login(request,user)
         # 5、返回响应
         return JsonResponse({'code': 200, 'errmsg': 'ok'})
