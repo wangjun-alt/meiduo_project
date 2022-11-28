@@ -5,6 +5,7 @@ from captcha.captcha import captcha
 from django_redis import get_redis_connection
 from ronglian_sms_sdk import SmsSDK
 
+
 # 图片验证码模块
 class ImageCodeView(View):
 
@@ -46,10 +47,15 @@ class SmsCodeView(View):
         # 4、生成短信验证码：
         from random import randint
         sms_code = "%06d" % randint(0, 999999)
+        # 使用redis的管道技术，多个请求放一个请求中，提升效率
+        # 1、建立管道
+        pipeline = redis_cli.pipeline()
+        # 2、管道收集指令
         # 5、保存短信验证码：
-        redis_cli.setex(mobile, 300, sms_code)
+        pipeline.setex(mobile, 300, sms_code)
         # 添加发送标记用以防止用户频繁操作
-        redis_cli.setex('send_flag_%s' % mobile, 60, 1)
+        pipeline.setex('send_flag_%s' % mobile, 60, 1)
+        pipeline.execute()
         # 6、发送短信验证码：
         datas = (sms_code, 5)
         sdk.sendMessage(tid, mobile, datas)
