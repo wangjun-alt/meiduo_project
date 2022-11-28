@@ -14,3 +14,4 @@ print(os.path.join(os.path.dirname(BASE_DIR)))
 
 count = User.objects.all()
 print(count)
+
