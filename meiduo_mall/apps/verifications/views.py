@@ -57,6 +57,7 @@ class SmsCodeView(View):
         pipeline.setex('send_flag_%s' % mobile, 60, 1)
         pipeline.execute()
         # 6、发送短信验证码：
-        datas = (sms_code, 5)
-        sdk.sendMessage(tid, mobile, datas)
+        datas = (sms_code, 1)
+        from celery_tasks.sms.tasks import celery_send_sms_code
+        celery_send_sms_code.delay(tid, mobile, datas, sdk)
         return JsonResponse({'code': '200', 'errmsg': 'ok'})
