@@ -94,7 +94,7 @@ class LoginView(View):
         response.set_cookie('username', username)
         return response
 
-
+# 退出登录
 class LogoutView(View):
     def delete(self, request):
         # 1、删除session信息
@@ -104,4 +104,16 @@ class LogoutView(View):
         # 2、删除cookie信息
         response.delete_cookie('username')
         return response
+
+
+# 用户中心
+"""
+LoginRequiredMixin 未登录用户会返回重定向，重定向并不是JSON数据
+我们需要的是 返回JSON数据
+"""
+from utils.views import LoginRequiredJSONMixin
+class CenterView(LoginRequiredJSONMixin, View):
+    def get(self, request):
+        return JsonResponse({'code': 200, 'errmsg': 'ok'})
+
 
