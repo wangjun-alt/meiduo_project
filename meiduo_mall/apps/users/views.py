@@ -87,4 +87,9 @@ class LoginView(View):
             # 不记住登录，浏览器关闭，session过期
             request.session.set_expiry(0)
         # 6、返回响应
-        return JsonResponse({'code': 200, 'errmsg': 'ok'})
+        """
+        这里为了减少网络通讯实现登录信息获取，我们把username存到cookie，让前端从cookie中获取username显示用户信息
+        """
+        response = JsonResponse({'code': 200, 'errmsg': 'ok'})
+        response.set_cookie('username', username)
+        return response
