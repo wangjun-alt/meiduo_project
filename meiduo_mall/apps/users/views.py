@@ -41,3 +41,42 @@ class RegisterView(View):
         login(request,user)
         # 5、返回响应
         return JsonResponse({'code': 200, 'errmsg': 'ok'})
+
+
+class LoginView(View):
+    def post(self, request):
+        # 1、接收数据
+        data = json.loads(request.body.decode())
+        username = data.get('username')
+        password = data.get('password')
+        remembered = data.get('remembered')
+        # 2、验证数据
+        if not all([username, password]):
+            return JsonResponse({'code': 400, 'errmsg': '参数不全'})
+
+        # 3、验证用户名和密码是否正确
+        """
+        方式一： User.objects.get(username=username)
+        """
+        # 方式二：系统提供的验证：
+        from django.contrib.auth import authenticate
+        """
+        authenticate 传递用户名和密码
+        如果正确，返回user信息
+        不正确，返回None
+        """
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return JsonResponse({'code': 400, 'errmsg': '账号或密码错误'})
+        # 4、session
+        from django.contrib.auth import login
+        login(request, user)
+        # 5、判断是否记住登录
+        if remembered:
+            # 记住登录 默认为None的话就是两个周
+            request.session.set_expiry(None)
+        else:
+            # 不记住登录，浏览器关闭，session过期
+            request.session.set_expiry(0)
+        # 6、返回响应
+        return JsonResponse({'code': 200, 'errmsg': 'ok'})
