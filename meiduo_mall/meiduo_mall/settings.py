@@ -217,8 +217,8 @@ CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 # QQ登录参数：
 
 # 申请的客户端id
-QQ_CLIENT_ID = '102033236'
+QQ_CLIENT_ID = '你自己的appid'
 # 申请的客户端密钥
-QQ_CLIENT_SECRET = 'GYdU7bswnQu990g7'
+QQ_CLIENT_SECRET = '你自己的appkey'
 # 申请时添加的回调路径
-QQ_REDIRECT_URL = 'http：xx'
+QQ_REDIRECT_URL = '自己的跳转路由'
