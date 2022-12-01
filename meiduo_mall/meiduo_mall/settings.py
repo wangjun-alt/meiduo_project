@@ -213,3 +213,12 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8000'
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+
+# QQ登录参数：
+
+# 申请的客户端id
+QQ_CLIENT_ID = '102033236'
+# 申请的客户端密钥
+QQ_CLIENT_SECRET = 'GYdU7bswnQu990g7'
+# 申请时添加的回调路径
+QQ_REDIRECT_URL = 'http：xx'
