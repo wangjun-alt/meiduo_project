@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import login
 from django.shortcuts import render
 
@@ -41,6 +43,8 @@ from django.views import View
 from meiduo_mall import settings
 from django.http import JsonResponse
 from apps.oauth.models import OAuthQQUser
+from apps.users.models import User
+
 
 class QQLoginURLView(View):
     def post(self, request):
@@ -85,3 +89,42 @@ class QuathQQView(View):
             response = JsonResponse({'code': 200, 'errmsg': 'ok'})
             response.set_cookie('username', qquser.user.username)
             return response
+
+    # 绑定账号
+    def post(self, request):
+        # 1、接受请求
+        data_dict = json.loads(request.body.decode())
+        # 2、获取请求参数， openid
+        mobile = data_dict.get('mobile')
+        password = data_dict.get('password')
+        sms_code = data_dict.get('sms_code')
+        openid = data_dict.get('access_token')
+        # 对数据进行验证：
+        """
+        1、判断参数是否齐全
+        2、判断手机号、密码是否合法
+        3、判断短信验证码是否一致
+        创建redis链接对象
+        判断sms_code_server链接对象有无，无的话直接返回错误
+        有的话就行判断是否正确  
+        """
+        # 3、根据手机号进行用户信息的查询
+        try:
+            user = User.objects.get(mobile=mobile)
+        except User.DoesNotExist:
+            # 手机号不存在
+            user = User.objects.create_user(username=mobile, mobile=mobile, password=password)
+        else:
+            # 手机号存在
+            if not user.check_password(password):
+                return JsonResponse({'code': 400, 'errmsg': '账号或密码错误'})
+
+        OAuthQQUser.objects.create(user=user, openid=openid)
+
+        # 完成状态保持
+        login(request, user)
+        # 返回响应：
+        response = JsonResponse({'code': 200, 'errmsg': 'ok'})
+        response.set_cookie('username', user.username)
+        return response
+
