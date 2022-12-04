@@ -78,7 +78,9 @@ class QuathQQView(View):
             qquser  = OAuthQQUser.objects.get(openid=openid)
         except OAuthQQUser.DoesNotExist:
             # 不存在，则需要绑定
-            response = JsonResponse({'code': 400, 'access_token': openid})
+            from utils.jwt_auth import generate_token
+            access_token = generate_token(openid)
+            response = JsonResponse({'code': 400, 'access_token': access_token})
             return response
         else:
             # 存在
@@ -98,7 +100,7 @@ class QuathQQView(View):
         mobile = data_dict.get('mobile')
         password = data_dict.get('password')
         sms_code = data_dict.get('sms_code')
-        openid = data_dict.get('access_token')
+        access_token = data_dict.get('access_token')
         # 对数据进行验证：
         """
         1、判断参数是否齐全
@@ -109,6 +111,11 @@ class QuathQQView(View):
         有的话就行判断是否正确  
         """
         # 3、根据手机号进行用户信息的查询
+        from utils.jwt_auth import validate_token
+        openid = validate_token(access_token)
+        if openid is False:
+            return JsonResponse({'code': 400, 'errmsg': '参数不全'})
+
         try:
             user = User.objects.get(mobile=mobile)
         except User.DoesNotExist:
@@ -128,3 +135,10 @@ class QuathQQView(View):
         response.set_cookie('username', user.username)
         return response
 
+"""
+itsdangerous 的基本使用
+itsdangerous -> 数据加密的第三方库
+1、导入 itsdangerous的类
+2、创建类的实例对象
+3、加密数据
+"""
